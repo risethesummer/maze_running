@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using MazeRunning.Utils.Physics;
+using UnityEngine;
 
 namespace MazeRunning.Gameplay.Maze.Info
 {
-    public readonly struct WallInfo
+    public struct WallInfo
     {
-        public Direction Direction { get; init; }
-        public Vector3 Position { get; init; }
+        public Direction Direction { get; set; }
+        public Vector3 Position { get; set; }
     }
 }
