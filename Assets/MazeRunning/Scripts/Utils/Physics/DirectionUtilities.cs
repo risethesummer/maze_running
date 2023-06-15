@@ -1,4 +1,5 @@
 ﻿using System;
+using MazeRunning.SharedStructures.Data;
 using MazeRunning.Utils.Collections;
 
 namespace MazeRunning.Utils.Physics

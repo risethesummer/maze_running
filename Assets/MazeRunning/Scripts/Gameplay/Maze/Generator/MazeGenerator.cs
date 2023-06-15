@@ -1,29 +1,33 @@
+using System;
 using Cysharp.Threading.Tasks;
 using MazeRunning.Gameplay.Maze.Environment;
 using MazeRunning.Gameplay.Maze.Info;
+using MazeRunning.SharedStructures.Signals;
+using MazeRunning.Utils.Debug;
 using Zenject;
 
 namespace MazeRunning.Gameplay.Maze.Generator
 {
-    public readonly struct DoneGeneratingMaze
-    {
-        
-    }
     public class MazeGenerator
     {
         private readonly MazeWall.Factory _wallFactory;
-        private readonly MazeGenPreparer _genPreparer;
         private readonly SignalBus _signalBus;
-        public MazeGenerator(MazeWall.Factory wallFactory, MazeGenPreparer mazeGenPreparer, SignalBus signalBus)
+        public MazeGenerator(MazeWall.Factory wallFactory, SignalBus signalBus)
         {
             _wallFactory = wallFactory;
-            _genPreparer = mazeGenPreparer;
             _signalBus = signalBus;
         }
-
         public UniTaskVoid Generate(GenMazeInfo genMazeInfo)
         {
-            var prepareInfo = _genPreparer.PreGenerate(genMazeInfo);
+            try
+            {
+                var prepareInfo = MazeGenPreparer.PreGenerate(genMazeInfo);
+                CreateWallsFromPreparation(genMazeInfo, prepareInfo);
+            }
+            catch (Exception e)
+            {
+                this.LogException(e);
+            }
             _signalBus.Fire<DoneGeneratingMaze>();
             return default;
         }

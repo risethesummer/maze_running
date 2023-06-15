@@ -1,4 +1,5 @@
-﻿using MazeRunning.Utils.Physics;
+﻿using MazeRunning.SharedStructures.Data;
+using MazeRunning.Utils.Physics;
 using UnityEngine;
 
 namespace MazeRunning.Gameplay.Maze.Info

@@ -1,4 +1,4 @@
-﻿namespace MazeRunning.Utils.Physics
+﻿namespace MazeRunning.SharedStructures.Data
 {
     public enum Direction : int
     {

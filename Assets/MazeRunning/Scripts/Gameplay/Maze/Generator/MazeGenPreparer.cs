@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using MazeRunning.Gameplay.Maze.Info;
+using MazeRunning.SharedStructures.Data;
 using MazeRunning.Utils.Collections;
 using MazeRunning.Utils.Physics;
 
@@ -12,12 +14,12 @@ namespace MazeRunning.Gameplay.Maze.Generator
     /// </summary>
     public class MazeGenPreparer
     {
-        public MazePreparation PreGenerate(GenMazeInfo genMazeInfo)
+        public static MazePreparation PreGenerate(GenMazeInfo genMazeInfo)
         {
             var mazeTempInfo = new MazePreparation(genMazeInfo);
             var remainingWalls = mazeTempInfo.GenFirstCell();
             while (remainingWalls.Count > 0)
-                BackTrackingInternal(mazeTempInfo, remainingWalls);
+                BackTrackingInternal(ref mazeTempInfo, remainingWalls);
             return mazeTempInfo;
         }
 
@@ -26,7 +28,7 @@ namespace MazeRunning.Gameplay.Maze.Generator
         /// </summary>
         /// <param name="mazePreparation"></param>
         /// <param name="remainingCells"></param>
-        private void BackTrackingInternal(MazePreparation mazePreparation, Stack<PairIndex> remainingCells)
+        private static void BackTrackingInternal(ref MazePreparation mazePreparation, Stack<PairIndex> remainingCells)
         {
             var peekCellIndex = remainingCells.Peek();
             if (mazePreparation.IsCellFull(peekCellIndex))
@@ -39,26 +41,39 @@ namespace MazeRunning.Gameplay.Maze.Generator
                 remainingCells.Push(shouldProcessNeighbor.Value);
         }
 
-        public readonly struct MazePreparation
+        public readonly ref struct MazePreparation
         {
             public class CellInfo
             {
-                public readonly bool[] DirectionStates = new bool[4];
-
-                public Direction NotGenRandomDirection
+                private const int BufferLength = 4;
+                [FixedBuffer(typeof(bool), BufferLength)]
+                public StateBuffer DirectionStates;
+                public struct StateBuffer
+                {
+                    public bool Left;
+                    public bool Top;
+                    public bool Right;
+                    public bool Bottom;
+                    public int CountNotGen()
+                    {
+                        return Left.GetReverseInt() + Top.GetReverseInt() + Right.GetReverseInt() + Bottom.GetReverseInt();
+                    }
+                }
+                
+                public Direction RandomNotGenDirection
                 {
                     get
                     {
-                        var notGenCount = DirectionStates.Count(e => !e);
+                        var notGenCount = DirectionStates.CountNotGen();
                         Span<int> notGenIndexes = stackalloc int[notGenCount];
                         var j = 0;
-                        for (var i = 0; i < DirectionStates.Length; i++)
+                        for (var i = 0; i < BufferLength; i++)
                         {
                             if (!DirectionStates[i])
                                 notGenIndexes[j++] = i;
                         }
 
-                        return (Direction)notGenIndexes[UnityEngine.Random.Range(0, notGenCount)];
+                        return (Direction)notGenIndexes.RandomElement();
                     }
                 }
             }
@@ -70,9 +85,13 @@ namespace MazeRunning.Gameplay.Maze.Generator
             {
                 _genMazeInfo = genMazeInfo;
                 _cells = new CellInfo[genMazeInfo.Width, genMazeInfo.Height];
-                _cells.InitArray(genMazeInfo.Width, genMazeInfo.Height);
+                _cells.Init2DArray(genMazeInfo.Width, genMazeInfo.Height);
             }
 
+            /// <summary>
+            /// Try to define the top left corner cell
+            /// </summary>
+            /// <returns></returns>
             public Stack<PairIndex> GenFirstCell()
             {
                 var firstCell = _cells[0, 0];
@@ -92,7 +111,7 @@ namespace MazeRunning.Gameplay.Maze.Generator
             public PairIndex? GenAndSetWall(PairIndex index)
             {
                 var cell = _cells[index.Row, index.Col];
-                var randDir = cell.NotGenRandomDirection;
+                var randDir = cell.RandomNotGenDirection;
                 return SetCellHasWallAtDirection(index, randDir);
             }
 
