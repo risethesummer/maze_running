@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MazeRunning.Utils.Collections
 {
@@ -20,12 +21,15 @@ namespace MazeRunning.Utils.Collections
             var randIndex = UnityEngine.Random.Range(0, arr.Length);
             return arr[randIndex];
         }
+        public static T RandomElement<T>(this IReadOnlyList<T> list)
+        {
+            var randIndex = UnityEngine.Random.Range(0, list.Count);
+            return list[randIndex];
+        }
         public static T RandomElement<T>(this Span<T> arr)
         {
             var randIndex = UnityEngine.Random.Range(0, arr.Length);
             return arr[randIndex];
         }
-        
-        public 
     }
 }

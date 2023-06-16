@@ -1,10 +1,10 @@
 ﻿using MazeRunning.SharedStructures.Signals;
-using MazeRunning.Utils.Views;
+using UnityEngine;
 using Zenject;
 
 namespace MazeRunning.GameViews.LevelViews
 {
-    public class WaitForGeneratingMazeView : WaitingView
+    public class WaitForGeneratingMazeView : MonoBehaviour
     {
         [Inject]
         public void Construct(SignalBus signalBus)

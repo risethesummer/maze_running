@@ -1,29 +1,23 @@
-﻿using System;
-using MazeRunning.Gameplay.Maze.Info;
-using UnityEngine;
+﻿using MazeRunning.Gameplay.Maze.Info;
+using MazeRunning.SharedStructures.Data;
+using MazeRunning.Utils.Physics;
 using Zenject;
 
 namespace MazeRunning.Gameplay.Maze.Environment
 {
-    public class MazeWall : MonoBehaviour, IPoolable<WallInfo, IMemoryPool>, IDisposable
+    public class MazeWall : MazeObject<WallInfo>
     {
-        private IMemoryPool _pool;
+        public Direction Direction;
 
-        public void OnDespawned()
+        public override void OnSpawned(WallInfo info, IMemoryPool pool)
         {
-            _pool = null;
-        }
-
-        public void OnSpawned(WallInfo info, IMemoryPool pool)
-        {
-            _pool = pool;
+            base.OnSpawned(info, pool);
             transform.position = info.Position;
+            Direction = info.Direction;
+            gameObject.name = $"Wall {info.Index.Row} {info.Index.Col}";
+            transform.rotation = info.Direction.GetLookRotation();
         }
-
-        public void Dispose()
-        {
-            _pool.Despawn(this);
-        }
+        
         public class Factory : PlaceholderFactory<WallInfo, MazeWall>
         {
         }

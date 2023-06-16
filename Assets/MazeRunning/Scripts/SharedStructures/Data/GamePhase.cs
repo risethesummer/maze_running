@@ -2,6 +2,6 @@
 {
     public enum GamePhase
     {
-        Constructing, Running, UI
+        Constructing, Running, EndGame
     }
 }

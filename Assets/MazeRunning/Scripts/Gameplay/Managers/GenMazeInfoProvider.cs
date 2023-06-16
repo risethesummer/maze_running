@@ -1,18 +1,19 @@
 ﻿using MazeRunning.Gameplay.Maze.Info;
-using MazeRunning.Utils.Collections;
 
 namespace MazeRunning.Gameplay.Managers
 {
     public class GenMazeInfoProvider
     {
+        private readonly GenMazeInfo _baseInfo;
+
+        public GenMazeInfoProvider(GenMazeInfo baseInfo)
+        {
+            _baseInfo = baseInfo;
+        }
         public GenMazeInfo Provide(int level)
         {
-            var mazeLength = Units.BaseLength * level;
-            return new GenMazeInfo
-            {
-                Width = mazeLength,
-                Height = mazeLength,
-            };
+            _baseInfo.SetScale(level);
+            return _baseInfo;
         }
     }
 }
